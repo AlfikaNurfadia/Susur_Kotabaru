@@ -6,7 +6,7 @@ import {
   Flag, Grid3x3, Eye, EyeOff, SlidersHorizontal, Trophy, RefreshCw, X,
   ChevronRight, BookOpen, ChevronLeft, ChevronRight as ChevronRightIcon,
   CheckCircle, Code, Map as MapIcon, Navigation, Info, CornerDownRight,
-  Upload // <-- tambahan
+  Upload
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import L from 'leaflet';
@@ -20,7 +20,7 @@ import { oneDark } from '@codemirror/theme-one-dark';
 // 1. IMPORTS ASSET (gambar, geojson, data)
 // =============================================
 import turtleImage from './assets/kura-kura-obj.png';
-import siringGeoJSON from './siring_terbaru.json';
+import SiringKotabaru from './geojson/Siring_Kotabaru.json';
 import dataSungai from './geojson/Data_Sungai.json';
 
 // =============================================
@@ -35,18 +35,21 @@ L.Icon.Default.mergeOptions({
 
 // =============================================
 // 3. FUNGSI EKSTRAK KOORDINAT & VALIDASI
-// =============================================
+// =============================================/
 const extractCoordinates = (geojson) => {
   if (!geojson || !geojson.features) return [];
   const polygonFeatures = geojson.features.filter(
-    feature => feature.geometry && feature.geometry.type === 'Polygon'
+    feature => feature.geometry && (feature.geometry.type === 'Polygon' || feature.geometry.type === 'MultiPolygon')
   );
   if (polygonFeatures.length === 0) {
     console.warn('Tidak ada feature Polygon yang valid di GeoJSON');
     return [];
   }
   const feature = polygonFeatures[0];
-  const coordinates = feature.geometry.coordinates[0];
+  const coordinates = feature.geometry.type === 'MultiPolygon'
+    ? feature.geometry.coordinates[0][0]
+    : feature.geometry.coordinates[0];
+
   let coords = coordinates.map(coord => [coord[1], coord[0]]);
   const first = coords[0];
   const last = coords[coords.length - 1];
@@ -56,10 +59,23 @@ const extractCoordinates = (geojson) => {
   return coords;
 };
 
-const batasSungai = extractCoordinates(siringGeoJSON);
+const batasSungai = extractCoordinates(SiringKotabaru);
 
-const startPoint = [-3.3132857, 114.592985];
-const finishPoint = [-1, 114.5955];
+// Hitung titik pusat polygon Siring_Kotabaru secara otomatis
+const getPolygonCenter = (coords) => {
+  if (!coords || coords.length === 0) return [-3.2346, 116.2202];
+  // Abaikan titik terakhir jika sama dengan titik pertama agar rata-rata akurat
+  const validCoords = coords.length > 1 ? coords.slice(0, -1) : coords;
+  const latSum = validCoords.reduce((sum, c) => sum + c[0], 0);
+  const lngSum = validCoords.reduce((sum, c) => sum + c[1], 0);
+  return [latSum / validCoords.length, lngSum / validCoords.length];
+};
+
+const polygonCenter = getPolygonCenter(batasSungai);
+
+// Titik start & finish di dalam area polygon Siring_Kotabaru
+const startPoint = [-3.235018, 116.221453];
+const finishPoint = [-3.2325, 116.2270];
 
 const polygonStyle = {
   color: '#0ea5e9',
@@ -138,20 +154,114 @@ const findFirstCollisionPoint = (startPos, endPos, stepSize = 1) => {
 };
 
 // =============================================
-// 5. FILTER LOKASI SUNGAI MARTAPURA
+// 5. FILTER LOKASI SIRING KOTABARU & DATA TAMBAHAN
 // =============================================
 const areaBounds = {
-  minLat: -3.325,
-  maxLat: -3.305,
-  minLng: 114.580,
-  maxLng: 114.600
+  minLat: -3.245,
+  maxLat: -3.225,
+  minLng: 116.200,
+  maxLng: 116.235
 };
 
-const lokasiSungaiMartapura = dataSungai
-  .filter(item => item.Nama_Sungai === "Sungai Martapura")
+// Data tambahan khusus kawasan Siring Laut & Rampa Berkah Kotabaru
+const dataTambahanKotabaru = [
+  {
+    Nama_Lokasi: 'Siring Laut Kotabaru, Tugu Ikan Todak Kembar',
+    Latitude: '-3,23503080',
+    Longitude: '116,22722450',
+    Kategori_Lokasi: 'Tempat Wisata',
+    Alamat_Wilayah: 'Kawasan Siring Laut, Kotabaru',
+    Deskripsi_Lokasi: 'Kawasan wisata tepi laut dan ikon wisata Kotabaru.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Ya'
+  },
+  {
+    Nama_Lokasi: 'Masjid Apung Siring Laut Kotabaru',
+    Latitude: '-3,23407110',
+    Longitude: '116,22786690',
+    Kategori_Lokasi: 'Tempat Ibadah',
+    Alamat_Wilayah: 'Perairan Siring Laut, Kotabaru',
+    Deskripsi_Lokasi: 'Tempat ibadah yang berada di kawasan perairan Siring Laut.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Ya'
+  },
+  {
+    Nama_Lokasi: 'Panggung Apung Saijaan',
+    Latitude: '-3,23551350',
+    Longitude: '116,22592430',
+    Kategori_Lokasi: 'Tempat Wisata',
+    Alamat_Wilayah: 'Kawasan Siring Laut, Kotabaru',
+    Deskripsi_Lokasi: 'Panggung apung untuk kegiatan pertunjukan dan acara masyarakat.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Ya'
+  },
+  {
+    Nama_Lokasi: 'Pelabuhan Siring Laut',
+    Latitude: '-3,23582110',
+    Longitude: '116,22476560',
+    Kategori_Lokasi: 'Infrastruktur Transportasi',
+    Alamat_Wilayah: 'Kawasan Siring Laut, Kotabaru',
+    Deskripsi_Lokasi: 'Tempat bersandar kapal dan aktivitas transportasi laut.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Ya'
+  },
+  {
+    Nama_Lokasi: 'Pelabuhan Panjang Kotabaru',
+    Latitude: '-3,23612070',
+    Longitude: '116,22503820',
+    Kategori_Lokasi: 'Infrastruktur Transportasi',
+    Alamat_Wilayah: 'Kotabaru',
+    Deskripsi_Lokasi: 'Pelabuhan untuk aktivitas transportasi dan kepelabuhanan.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Ya'
+  },
+  {
+    Nama_Lokasi: 'Taman Siring Laut',
+    Latitude: '-3,23675380',
+    Longitude: '116,22671710',
+    Kategori_Lokasi: 'Tempat Wisata',
+    Alamat_Wilayah: 'Kawasan Siring Laut, Kotabaru',
+    Deskripsi_Lokasi: 'Ruang terbuka dan tempat rekreasi masyarakat.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Tidak'
+  },
+  {
+    Nama_Lokasi: 'Masjid Annur Kotabaru Kalsel',
+    Latitude: '-3,23285570',
+    Longitude: '116,23077730',
+    Kategori_Lokasi: 'Tempat Ibadah',
+    Alamat_Wilayah: 'Kotabaru, Kalimantan Selatan',
+    Deskripsi_Lokasi: 'Tempat ibadah umat Islam.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Tidak'
+  },
+  {
+    Nama_Lokasi: 'Taman Siring Rampa Berkah',
+    Latitude: '-3,23749420',
+    Longitude: '116,22254130',
+    Kategori_Lokasi: 'Tempat Wisata',
+    Alamat_Wilayah: 'Kawasan Rampa Berkah, Kotabaru',
+    Deskripsi_Lokasi: 'Taman dan ruang publik untuk rekreasi masyarakat.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Ya'
+  },
+  {
+    Nama_Lokasi: 'Rampa Berkah',
+    Latitude: '-3,23808870',
+    Longitude: '116,22204550',
+    Kategori_Lokasi: 'Tempat Wisata',
+    Alamat_Wilayah: 'Kawasan Rampa Berkah, Kotabaru',
+    Deskripsi_Lokasi: 'Kawasan atau ruang publik Rampa Berkah.',
+    Akses_Lokasi: 'Mudah',
+    Bisa_Dicapai_Perahu: 'Ya'
+  },
+];
+
+// Gabungkan dataSungai dengan dataTambahanKotabaru lalu konversi koordinatnya
+const lokasiSiringKotabaru = [...dataSungai, ...dataTambahanKotabaru]
   .map(item => {
-    const lat = parseFloat(item.Latitude.replace(/,/g, '.'));
-    const lng = parseFloat(item.Longitude.replace(/,/g, '.'));
+    const lat = parseFloat(String(item.Latitude).replace(/,/g, '.'));
+    const lng = parseFloat(String(item.Longitude).replace(/,/g, '.'));
     return { ...item, lat, lng };
   })
   .filter(item => !isNaN(item.lat) && !isNaN(item.lng))
@@ -190,19 +300,26 @@ const finishIcon = new L.DivIcon({
 });
 
 const getMarkerIcon = (kategori) => {
-  const colors = {
-    'Tempat Ibadah': '#3b82f6', 'Perdagangan': '#f59e0b', 'Pemerintahan dan Umum': '#8b5cf6',
-    'Infrastruktur Transportasi': '#10b981', 'Perusahaan dan Industri': '#ef4444',
-    'Pendidikan': '#ec4899', 'Kuliner': '#f97316', 'Tempat Wisata': '#06b6d4',
-    'Pemukiman': '#6b7280', 'Jembatan': '#f472b6',
+  const categoryAssets = {
+    'Tempat Ibadah': { color: '#3b82f6', icon: '🕌' },
+    'Perdagangan': { color: '#f59e0b', icon: '🏪' },
+    'Pemerintahan dan Umum': { color: '#8b5cf6', icon: '🏛️' },
+    'Infrastruktur Transportasi': { color: '#10b981', icon: '⚓' },
+    'Perusahaan dan Industri': { color: '#ef4444', icon: '🏭' },
+    'Pendidikan': { color: '#ec4899', icon: '🎓' },
+    'Kuliner': { color: '#f97316', icon: '🍽️' },
+    'Tempat Wisata': { color: '#06b6d4', icon: '🏞️' },
+    'Pemukiman': { color: '#6b7280', icon: '🏘️' },
+    'Jembatan': { color: '#f472b6', icon: '🌉' },
   };
-  const color = colors[kategori] || '#6b7280';
+  const asset = categoryAssets[kategori] || { color: '#6b7280', icon: '📍' };
+
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="width:28px;height:28px;background:${color};border:2px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;">${kategori ? kategori.charAt(0) : '?'}</div>`,
-    iconSize: [28, 28],
-    iconAnchor: [14, 14],
-    popupAnchor: [0, -14],
+    html: `<div style="width:32px;height:32px;background:${asset.color};border:2px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:15px;">${asset.icon}</div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16],
   });
 };
 
@@ -291,11 +408,6 @@ const LocationPopupContent = ({ lokasi, isActive = false, onContinue = null }) =
             {copied ? '✅' : '📋'}
           </button>
         </div>
-        {/* {lokasi.Foto_Lokasi && (
-          <a href={lokasi.Foto_Lokasi} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', color: '#0ea5e9', textDecoration: 'none', marginTop: '6px', paddingLeft: '22px', fontWeight: '500' }}>
-            🔗 Lihat Foto
-          </a>
-        )} */}
         {isActive && onContinue && (
           <div style={{ marginTop: '12px', paddingTop: '10px', borderTop: '2px dashed #14b8a6', textAlign: 'center' }}>
             <button
@@ -338,9 +450,9 @@ const OnboardingPopup = ({ onClose }) => {
     {
       icon: <BookOpen className="text-teal-400" size={32} />,
       title: "Selamat Datang! 🐢",
-      description: "Halo! Selamat datang. Di sini kamu akan belajar cara menavigasi kura-kura menyusuri kawasan Siring menggunakan perintah-perintah sederhana.",
+      description: "Halo! Selamat datang. Di sini kamu akan belajar cara menavigasi kura-kura menyusuri kawasan Siring Kotabaru menggunakan perintah-perintah sederhana.",
       tips: [
-        "Silahkan susuri sungai di sekitar kawasan siring dan temukan informasi tempat-tempat menarik di sekitarnya",
+        "Silahkan susuri perairan di sekitar kawasan Siring Kotabaru dan temukan informasi tempat-tempat menarik di sekitarnya",
       ]
     },
     {
@@ -359,7 +471,7 @@ const OnboardingPopup = ({ onClose }) => {
       title: "Peta & Navigasi",
       description: "Lihat peta dengan batas area (garis biru putus-putus). Jaga kura-kura tetap di dalam area!",
       tips: [
-        "jalankan kura kura jangan keluar batas sungai",
+        "Jalankan kura-kura jangan keluar batas area Siring Kotabaru",
       ]
     },
     {
@@ -485,7 +597,7 @@ const FollowTurtle = ({ position }) => {
   return null;
 };
 
-const MapGrid = ({ riverBounds, stepMeters = 275, enabled = true, marginDeg = 0.05 }) => {
+const MapGrid = ({ riverBounds, stepMeters = 200, enabled = true, marginDeg = 0.05 }) => {
   const map = useMap();
   useEffect(() => {
     if (!enabled || !riverBounds || riverBounds.length === 0) return;
@@ -541,7 +653,7 @@ const Tutorial = () => {
   const [trail, setTrail] = useState([startPoint]);
   const [showTrail, setShowTrail] = useState(true);
   const [gridEnabled, setGridEnabled] = useState(true);
-  const [gridSizeMeters, setGridSizeMeters] = useState(275);
+  const [gridSizeMeters, setGridSizeMeters] = useState(200);
   const [showResultPopup, setShowResultPopup] = useState(false);
 
   // State interaksi marker
@@ -583,7 +695,7 @@ const Tutorial = () => {
     }
   }, [turtleAngle, collisionEffect]);
 
-  // Zoom ke batas
+  // Zoom ke batas polygon Siring_Kotabaru
   useEffect(() => {
     if (mapRef.current && batasSungai.length > 0) {
       const bounds = L.latLngBounds(batasSungai);
@@ -656,7 +768,7 @@ const Tutorial = () => {
       const threshold = 0.00045; // ~50 meter
       let nearestIdx = -1;
       let minDist = threshold;
-      lokasiSungaiMartapura.forEach((lokasi, idx) => {
+      lokasiSiringKotabaru.forEach((lokasi, idx) => {
         const d = Math.sqrt((pos[0] - lokasi.lat)**2 + (pos[1] - lokasi.lng)**2);
         if (d < minDist) {
           minDist = d;
@@ -699,7 +811,6 @@ const Tutorial = () => {
       const content = event.target.result;
       setCommands(content);
       setFileName(file.name);
-      // Reset riwayat & error saat file diimport
       setCommandHistory([]);
       setError('');
       setAlertMsg(`📄 File "${file.name}" berhasil diimpor (${content.split('\n').length} baris)`);
@@ -710,7 +821,6 @@ const Tutorial = () => {
       setTimeout(() => setAlertMsg(null), 3000);
     };
     reader.readAsText(file);
-    // Reset input agar bisa upload file yang sama lagi
     e.target.value = '';
   };
 
@@ -757,7 +867,6 @@ const Tutorial = () => {
         newTrail = [...newTrail, targetPos];
         setTrail(newTrail);
         if (checkFinish(targetPos)) reachedFinish = true;
-        // Cek marker terdekat
         if (!reachedFinish && !commandError) {
           await checkNearbyMarkers(newPos);
         }
@@ -926,7 +1035,7 @@ const Tutorial = () => {
         history[history.length - 1].status = 'error';
         history[history.length - 1].error = err.message;
       }
-      setCommandHistory([history]);
+      setCommandHistory([...history]);
       setAlertMsg(`❌ Error pada baris ${history.length}: ${err.message}`);
       setTimeout(() => setAlertMsg(null), 4000);
     }
@@ -981,13 +1090,13 @@ const Tutorial = () => {
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
-          <motion.button onClick={() => navigate('/sungai')} className="p-2 hover:bg-gray-700 rounded-lg transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <motion.button onClick={() => navigate('/')} className="p-2 hover:bg-gray-700 rounded-lg transition-colors" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <ArrowLeft size={20} className="text-gray-300" />
           </motion.button>
           <div>
             <h1 className="text-xl font-bold text-white flex items-center gap-2">
               <img src={turtleImage} alt="🐢" className="w-6 h-6" />
-              Tutorial - Kawasan Siring
+              Siring Kotabaru
             </h1>
           </div>
         </div>
@@ -1023,7 +1132,7 @@ const Tutorial = () => {
       <div className="flex-1 flex overflow-hidden min-h-0">
         {/* Map */}
         <div className="flex-1 relative">
-          <MapContainer center={turtlePos} zoom={20} style={{ height: '100%', width: '100%' }} ref={mapRef}>
+          <MapContainer center={polygonCenter} zoom={16.4} style={{ height: '100%', width: '100%' }} ref={mapRef}>
             <LayersControl position="topleft">
               <LayersControl.BaseLayer checked name="OpenStreetMap">
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; OpenStreetMap contributors" />
@@ -1035,7 +1144,7 @@ const Tutorial = () => {
 
             <FollowTurtle position={turtlePos} />
             <MapGrid riverBounds={batasSungai} stepMeters={gridSizeMeters} enabled={gridEnabled} marginDeg={0.05} />
-            <GeoJSON data={siringGeoJSON} style={polygonStyle} ref={geojsonRef} />
+            <GeoJSON data={SiringKotabaru} style={polygonStyle} ref={geojsonRef} />
             <Polygon positions={batasSungai} pathOptions={{ color: '#0ea5e9', weight: 3, opacity: 0.8, fillOpacity: 0.1, fillColor: '#0ea5e9', dashArray: '5, 10' }} />
 
             {/* Alert */}
@@ -1067,12 +1176,12 @@ const Tutorial = () => {
             ))}
 
             {/* Start & Finish */}
-            <Marker position={startPoint} icon={startIcon}>
+            {/* <Marker position={startPoint} icon={startIcon}>
               <Popup><div className="text-center"><p className="font-bold text-green-600">START</p><p className="text-xs">Titik awal</p></div></Popup>
             </Marker>
             <Marker position={finishPoint} icon={finishIcon}>
               <Popup><div className="text-center"><p className="font-bold text-red-600">FINISH</p><p className="text-xs">Titik tujuan</p></div></Popup>
-            </Marker>
+            </Marker> */}
 
             {/* Turtle */}
             <Marker position={turtlePos} icon={createTurtleIcon(turtleAngle, collisionEffect)} ref={markerRef}>
@@ -1087,7 +1196,7 @@ const Tutorial = () => {
             </Marker>
 
             {/* Marker lokasi dengan popup interaktif */}
-            {lokasiSungaiMartapura.map((lokasi, idx) => (
+            {lokasiSiringKotabaru.map((lokasi, idx) => (
               <Marker
                 key={idx}
                 position={[lokasi.lat, lokasi.lng]}
@@ -1105,9 +1214,9 @@ const Tutorial = () => {
             ))}
 
             {/* Info jumlah lokasi */}
-            {lokasiSungaiMartapura.length > 0 && (
+            {lokasiSiringKotabaru.length > 0 && (
               <div className="absolute bottom-24 left-4 bg-black/70 backdrop-blur px-3 py-1.5 rounded-lg z-[1000] border border-white/10">
-                <span className="text-white/80 text-xs">📍 {lokasiSungaiMartapura.length} lokasi ditemukan</span>
+                <span className="text-white/80 text-xs">📍 {lokasiSiringKotabaru.length} lokasi ditemukan</span>
               </div>
             )}
           </MapContainer>
@@ -1126,16 +1235,16 @@ const Tutorial = () => {
           <div className="absolute top-4 right-4 bg-white/95 backdrop-blur p-4 rounded-xl shadow-lg z-[1000] max-h-[80vh] overflow-y-auto">
             <h4 className="font-bold text-gray-800 mb-3 text-sm">Legenda</h4>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2"><div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs border-2 border-white shadow">🏁</div><span className="text-gray-700">Start</span></div>
-              <div className="flex items-center gap-2"><div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs border-2 border-white shadow">🚩</div><span className="text-gray-700">Finish</span></div>
+              {/* <div className="flex items-center gap-2"><div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-xs border-2 border-white shadow">🏁</div><span className="text-gray-700">Start</span></div>
+              <div className="flex items-center gap-2"><div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-xs border-2 border-white shadow">🚩</div><span className="text-gray-700">Finish</span></div> */}
               <div className="flex items-center gap-2"><div className="w-6 h-6 rounded-full flex items-center justify-center text-xs border-2 border-white shadow overflow-hidden bg-amber-100"><img src={turtleImage} alt="" className="w-full h-full object-cover" /></div><span className="text-gray-700">Kura-kura</span></div>
               <div className="flex items-center gap-2"><div className="w-6 h-1 bg-amber-500 rounded" style={{ background: '#f59e0b', height: '4px' }}></div><span className="text-gray-700">Jejak Perjalanan</span></div>
               <div className="flex items-center gap-2"><div className="w-6 h-1 bg-sky-500 rounded" style={{ background: 'transparent', borderTop: '3px dashed #0ea5e9', height: '3px', width: '24px' }}></div><span className="text-gray-700">Batas Area</span></div>
               <div className="flex items-center gap-2"><div className="w-6 h-0 border-t border-gray-400 border-dashed" style={{ borderTop: `1px dashed ${gridEnabled ? '#9ca3af' : '#6b7280'}` }}></div><span className="text-gray-700">Grid Peta ({gridSizeMeters} m)</span></div>
-              <div className="flex items-center gap-2 border-t border-gray-200 pt-2 mt-2"><div className="w-6 h-6 rounded-full bg-gray-500 border-2 border-white shadow flex items-center justify-center text-xs text-white font-bold">?</div><span className="text-gray-700">Lokasi (berwarna)</span></div>
-              {lokasiSungaiMartapura.length > 0 && <div className="text-[10px] text-gray-400 border-t border-gray-200 pt-2 mt-1">{lokasiSungaiMartapura.length} lokasi ditemukan</div>}
+              <div className="flex items-center gap-2 border-t border-gray-200 pt-2 mt-2"><div className="w-6 h-6 rounded-full bg-gray-500 border-2 border-white shadow flex items-center justify-center text-xs text-white font-bold">?</div><span className="text-gray-700">Lokasi (icon)</span></div>
+              {lokasiSiringKotabaru.length > 0 && <div className="text-[10px] text-gray-400 border-t border-gray-200 pt-2 mt-1">{lokasiSiringKotabaru.length} lokasi ditemukan</div>}
             </div>
-          </div>
+          </div> 
         </div>
 
         {/* Control Panel */}

@@ -276,21 +276,20 @@ const TentangModal = ({ isOpen, onClose }) => {
                 transition={{ delay: 0.1 }}
               >
                 <h1 className="text-3xl md:text-4xl font-bold mb-3 flex items-center gap-3 drop-shadow-lg">
-                  <BookOpen className="text-amber-300" /> Tentang Susur Sungai
+                  <BookOpen className="text-amber-300" /> Tentang Susur Siring Kotabaru
                 </h1>
 
                 <p className="text-base md:text-lg text-white/90 mb-4 drop-shadow">
-                  <strong>Susur Sungai</strong> adalah platform pembelajaran interaktif yang mengajak
-                  Anda menjelajahi keindahan dan keunikan sungai-sungai di Kalimantan Selatan.
+                  <strong>Susur Siring Kotabaru</strong> adalah platform pembelajaran interaktif yang mengajak
+                  Anda menjelajahi keindahan dan keunikan kawasan Siring di Kotabaru, Kalimantan Selatan.
                   Dikemas dalam bentuk permainan edukasi, pengguna dapat belajar sambil berpetualang.
                 </p>
 
                 {/* Grid fitur */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
                   <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/20">
-                    <Map className="w-8 h-8 mx-auto text-amber-300 mb-1" />
-                    <h3 className="font-semibold text-base">Jelajahi Sungai</h3>
-                    <p className="text-xs text-white/80">Kenali sungai-sungai ikonik Banjarmasin.</p>
+                    <h3 className="font-semibold text-base">Jelajahi Siring</h3>
+                    <p className="text-xs text-white/80">Kenali kawasan wisata Siring Kotabaru.</p>
                   </div>
                   <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 text-center border border-white/20">
                     <Trophy className="w-8 h-8 mx-auto text-amber-300 mb-1" />
@@ -325,34 +324,34 @@ const TentangModal = ({ isOpen, onClose }) => {
                     <Code size={18} className="text-amber-300" /> Tim Pengembang
                   </h2>
                   <div className="flex flex-col gap-2">
-                  {/* <!-- Baris 1: 3 Item --> */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-                      <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">HS</div>
-                      <div className="text-xs font-medium text-white truncate">Harja Santana Purba</div>
+                    {/* Baris 1: 3 Item */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                        <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">HS</div>
+                        <div className="text-xs font-medium text-white truncate">Harja Santana Purba</div>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                        <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">NA</div>
+                        <div className="text-xs font-medium text-white truncate">Novan Alkaf B.S</div>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
+                        <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">IM</div>
+                        <div className="text-xs font-medium text-white truncate">Ihdalhubbi Maulida</div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-                      <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">NA</div>
-                      <div className="text-xs font-medium text-white truncate">Novan Alkaf B.S</div>
-                    </div>
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10">
-                      <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">IM</div>
-                      <div className="text-xs font-medium text-white truncate">Ihdalhubbi Maulida</div>
-                    </div>
-                  </div>
 
-                  {/* <!-- Baris 2: 2 Item (Persis Tengah) --> */}
-                  <div className="flex justify-center gap-2">
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 w-[calc(33.333%-0.5rem)]">
-                      <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">KR</div>
-                      <div className="text-xs font-medium text-white truncate">Khoyrur Roykhan</div>
-                    </div>
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 w-[calc(33.333%-0.5rem)]">
-                      <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">AN</div>
-                      <div className="text-xs font-medium text-white truncate">Alfika Nurfadia</div>
+                    {/* Baris 2: 2 Item (Persis Tengah) */}
+                    <div className="flex justify-center gap-2">
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 w-[calc(33.333%-0.5rem)]">
+                        <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">KR</div>
+                        <div className="text-xs font-medium text-white truncate">Khoyrur Roykhan</div>
+                      </div>
+                      <div className="flex items-center gap-2 p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/10 w-[calc(33.333%-0.5rem)]">
+                        <div className="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-amber-400/20 text-amber-300 text-sm font-bold">AN</div>
+                        <div className="text-xs font-medium text-white truncate">Alfika Nurfadia</div>
+                      </div>
                     </div>
                   </div>
-                </div>
                   <div className="mt-2 flex flex-wrap gap-3 justify-center text-xs text-white/70">
                     <span className="flex items-center gap-1"><Mail size={14} /> pilkom@ulm.ac.id</span>
                     <span className="flex items-center gap-1"><Globe size={14} /> pilkom.ulm.ac.id</span>
@@ -360,7 +359,7 @@ const TentangModal = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="mt-4 text-center text-xs text-white/50 border-t border-white/20 pt-3">
-                  © Tim Game Edukasi Susur Sungai • 2026
+                  © Tim Game Edukasi Susur Siring Kotabaru • 2026
                 </div>
               </motion.div>
             </div>
@@ -541,11 +540,11 @@ const LandingPage = () => {
     }, 100);
   };
 
-  // Tombol Mulai Petualangan -> selalu ke /sungai
+  // Tombol Mulai Petualangan -> langsung ke halaman Tutorial
   const handleStartAdventure = () => {
     playClickSound();
     setTimeout(() => {
-      navigate('/sungai');
+      navigate('game/Tutorial');
     }, 100);
   };
 
@@ -621,24 +620,24 @@ const LandingPage = () => {
         transition={{ repeat: Infinity, duration: 6 }}
       />
 
-      {/* HOTSPOT MONYET */}
+      {/* HOTSPOT KIRI */}
       <Hotspot
         style={{ left: '5%', top: '48%', width: '180px', height: '180px' }}
         onClick={() =>
           handleHotspotClick(
-            'Pulau Kembang',
-            'Habitat bekantan yang menjadi ikon wisata Kalimantan Selatan.'
+            'Siring Laut Kotabaru',
+            'Ikon wisata pesisir Kabupaten Kotabaru dengan pemandangan laut lepas dan deretan kuliner khas.'
           )
         }
       />
 
-      {/* HOTSPOT MENARA */}
+      {/* HOTSPOT KANAN */}
       <Hotspot
         style={{ right: '8%', top: '28%', width: '180px', height: '220px' }}
         onClick={() =>
           handleHotspotClick(
-            'Menara Pandang',
-            'Salah satu ikon Kota Banjarmasin dengan pemandangan sungai dari atas.'
+            'Pantai & Pesisir Kotabaru',
+            'Kawasan pesisir Bumi Saijaan yang kaya akan budaya bahari dan keindahan alam.'
           )
         }
       />
@@ -724,7 +723,7 @@ const LandingPage = () => {
               <p className="text-white/80 text-sm mt-1">
                 {userRole === 'teacher'
                   ? 'Kelola kelas dan pantau progres siswa'
-                  : 'Ayo jelajahi sungai-sungai di Kalimantan Selatan'}
+                  : 'Ayo jelajahi kawasan Siring Kotabaru'}
               </p>
             </motion.div>
           )}
@@ -737,7 +736,7 @@ const LandingPage = () => {
               transition={{ delay: 0.3 }}
             >
               <h2 className="text-2xl md:text-3xl font-bold text-white drop-shadow-lg">
-                Selamat Datang di Susur Sungai!
+                Selamat Datang di Susur Siring Kotabaru!
               </h2>
             </motion.div>
           )}
@@ -762,7 +761,7 @@ const LandingPage = () => {
               repeat: Infinity,
             }}
           >
-            SUSUR <br /> SUNGAI
+            SUSUR SIRING <br /> KOTABARU
           </motion.h1>
 
           <motion.p
@@ -770,7 +769,7 @@ const LandingPage = () => {
             animate={{ y: [0, -4, 0] }}
             transition={{ duration: 3, repeat: Infinity }}
           >
-            Petualangan di Kota Seribu Sungai
+            Petualangan di Bumi Saijaan
           </motion.p>
 
           {/* Tombol Mulai Petualangan */}
@@ -851,7 +850,7 @@ const LandingPage = () => {
 
       {/* FOOTER */}
       <div className="absolute bottom-4 w-full text-center text-white/60 text-xs z-10">
-        © 2026 Susur Sungai • Banjarmasin
+        © 2026 Susur Siring Kotabaru • Kotabaru
       </div>
 
       {/* MODAL HOTSPOT */}
