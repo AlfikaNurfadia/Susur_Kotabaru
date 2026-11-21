@@ -4,9 +4,9 @@ import { X, Turtle, Play, LogIn, LogOut, User, LayoutDashboard, Volume2, VolumeX
 import { useNavigate } from 'react-router-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '../config/firebase';
+import { auth, db } from '../config/firebase'; 
 
-import bg_sungai from './game/assets/bg_terbaru.png';
+import bg_sungai from './game/assets/landing.jpg';
 import panting from './assets/music/landing-panting.mp3';
 import { playHoverSound, playClickSound, resumeAudio } from '../utils/SoundManager';
 
